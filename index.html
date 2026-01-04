@@ -1,1 +1,247 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0f19" />
+  <title>Fitness 2026</title>
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar__title">
+        <div class="logo">🏋️</div>
+        <div>
+          <div class="title">Fitness 2026</div>
+          <div class="subtitle" id="topSubtitle">Calendário</div>
+        </div>
+      </div>
+
+      <div class="topbar__actions">
+        <button class="iconbtn" id="btnToday" title="Hoje">Hoje</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- CALENDAR -->
+      <section class="page" id="page-calendar">
+        <div class="card">
+          <div class="row between center">
+            <button class="ghost" id="calPrev">◀</button>
+            <div class="h2" id="calTitle">—</div>
+            <button class="ghost" id="calNext">▶</button>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="kpi__value" id="kpiTotal">0</div>
+              <div class="kpi__label">Treinos</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi__value" id="kpiGym">0</div>
+              <div class="kpi__label">Academia</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi__value" id="kpiBasket">0</div>
+              <div class="kpi__label">Basquete</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi__value" id="kpiOther">0</div>
+              <div class="kpi__label">Outros</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="weekdays">
+            <div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div>
+          </div>
+          <div class="calendar" id="calendarGrid"></div>
+        </div>
+
+        <div class="card">
+          <div class="row between center">
+            <div class="h3">Atividades do dia</div>
+            <button class="btn" id="btnAddFromCalendar">+ Registrar</button>
+          </div>
+          <div class="muted" id="dayLabel">Selecione um dia.</div>
+          <div class="list" id="daySessions"></div>
+        </div>
+      </section>
+
+      <!-- WORKOUT -->
+      <section class="page hidden" id="page-workout">
+        <div class="card">
+          <div class="h2">Registrar atividade</div>
+
+          <div class="form">
+            <label class="label">Data</label>
+            <input class="input" type="date" id="wDate" />
+
+            <label class="label">Atividade</label>
+            <div class="segmented" id="wType">
+              <button class="seg active" data-type="gym">Academia</button>
+              <button class="seg" data-type="basketball">Basquete</button>
+              <button class="seg" data-type="other">Outros</button>
+            </div>
+
+            <div id="wCommon">
+              <label class="label">Duração (min)</label>
+              <input class="input" type="number" id="wDuration" min="0" step="5" value="60" />
+              <label class="label">Observações (opcional)</label>
+              <textarea class="textarea" id="wNotes" rows="3" placeholder="Ex: treino bom, sem dor, etc."></textarea>
+            </div>
+
+            <div class="hidden" id="wBasketball">
+              <label class="label">Intensidade</label>
+              <select class="input" id="wIntensity">
+                <option value="Baixa">Baixa</option>
+                <option value="Média" selected>Média</option>
+                <option value="Alta">Alta</option>
+              </select>
+            </div>
+
+            <div class="hidden" id="wOther">
+              <label class="label">Nome da atividade</label>
+              <input class="input" type="text" id="wOtherName" placeholder="Ex: Corrida, Natação, Caminhada..." />
+            </div>
+
+            <div class="" id="wGym">
+              <div class="divider"></div>
+
+              <div class="row between center">
+                <div>
+                  <div class="h3">Grupos musculares</div>
+                  <div class="muted">Selecione e carregue sugestões (5 por grupo).</div>
+                </div>
+                <button class="btn ghost" id="btnLoadSuggestions">Carregar sugestões</button>
+              </div>
+
+              <div class="chips" id="muscleChips"></div>
+
+              <div class="divider"></div>
+
+              <div class="row between center">
+                <div class="h3">Exercícios do treino</div>
+                <button class="btn ghost" id="btnAddManualExercise">+ Outro exercício</button>
+              </div>
+
+              <div class="list" id="workoutExercises"></div>
+            </div>
+
+            <div class="divider"></div>
+
+            <button class="btn primary" id="btnSaveSession">Salvar atividade</button>
+            <div class="muted small" id="saveHint">Tudo é salvo localmente no seu iPhone (IndexedDB).</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- INSIGHTS -->
+      <section class="page hidden" id="page-insights">
+        <div class="card">
+          <div class="row between center">
+            <button class="ghost" id="insPrev">◀</button>
+            <div class="h2" id="insTitle">—</div>
+            <button class="ghost" id="insNext">▶</button>
+          </div>
+          <div class="muted">Visão mensal (quantidade e minutos). Mais gráficos dá pra adicionar depois.</div>
+        </div>
+
+        <div class="card">
+          <div class="h3">Atividades no mês</div>
+          <canvas id="chartCount" height="180"></canvas>
+        </div>
+
+        <div class="card">
+          <div class="h3">Minutos no mês</div>
+          <canvas id="chartMinutes" height="180"></canvas>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="page hidden" id="page-settings">
+        <div class="card">
+          <div class="h2">Configurações</div>
+          <div class="muted">Backup/Import da base local + reset.</div>
+
+          <div class="divider"></div>
+
+          <button class="btn" id="btnExport">Exportar backup (.json)</button>
+          <label class="btn ghost" for="importFile">Importar backup (.json)</label>
+          <input id="importFile" type="file" accept="application/json" class="hidden" />
+
+          <div class="divider"></div>
+
+          <button class="btn danger" id="btnReset">Apagar todos os dados</button>
+
+          <div class="divider"></div>
+
+          <div class="muted small" id="settingsStatus"></div>
+        </div>
+      </section>
+
+      <!-- MODALS -->
+      <div class="modal hidden" id="modalExercise">
+        <div class="modal__card">
+          <div class="row between center">
+            <div class="h3" id="modalTitle">Adicionar exercício</div>
+            <button class="iconbtn" id="modalClose">✕</button>
+          </div>
+
+          <div class="form">
+            <label class="label">Nome</label>
+            <input class="input" id="mName" placeholder="Ex: Supino declinado" />
+
+            <label class="label">Grupo muscular</label>
+            <select class="input" id="mGroup"></select>
+
+            <label class="label">Tipo</label>
+            <select class="input" id="mKind">
+              <option value="strength" selected>Força</option>
+              <option value="cardio">Cardio</option>
+            </select>
+
+            <label class="label">Músculo principal</label>
+            <input class="input" id="mPrimary" placeholder="Ex: Peitoral maior" />
+
+            <label class="label">Ênfase (porção/foco)</label>
+            <input class="input" id="mEmphasis" placeholder="Ex: porção clavicular (peito superior)" />
+
+            <label class="label">Secundários</label>
+            <input class="input" id="mSecondary" placeholder="Ex: tríceps; deltoide anterior" />
+
+            <button class="btn primary" id="modalSaveExercise">Salvar e adicionar</button>
+            <div class="muted small">Dica: pode deixar alguns campos como “—”.</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <nav class="tabbar">
+      <button class="tab active" data-page="calendar">
+        <span class="tab__icon">📅</span>
+        <span class="tab__label">Calendário</span>
+      </button>
+      <button class="tab" data-page="workout">
+        <span class="tab__icon">➕</span>
+        <span class="tab__label">Treino</span>
+      </button>
+      <button class="tab" data-page="insights">
+        <span class="tab__icon">📊</span>
+        <span class="tab__label">Evolução</span>
+      </button>
+      <button class="tab" data-page="settings">
+        <span class="tab__icon">⚙️</span>
+        <span class="tab__label">Config</span>
+      </button>
+    </nav>
+  </div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
 
